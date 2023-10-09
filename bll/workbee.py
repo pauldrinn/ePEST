@@ -12,15 +12,10 @@ the distribution).
 @contact: iamyezhenqing@gmail.com
 """
 
-from bll.exo import ExoBlocker
 import bll.dedup as dedup
-import bll.param as param
 import bll.peak as peak
 import bll.border as border
 import bll.core as core
-import time
-
-import multiprocessing
 
 def processWorkBee(chromNodes, results, pargs, plog):
     while True:

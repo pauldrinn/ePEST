@@ -16,7 +16,10 @@ the distribution).
 # python modules
 # ------------------------------------
 import sys
-import os
+if sys.version_info >= (3, 8):
+    import importlib.metadata as metadata  # For Python 3.8 and newer
+else:
+    import importlib_metadata as metadata  # For older Python versions
 
 """Business environment-checking module."""
 
@@ -37,6 +40,14 @@ class ExoEnvError(Exception):
 # ------------------------------------
 # Misc functions
 # ------------------------------------
+def check_module_version(module_name, min_version):
+    try:
+        package_version = metadata.version(module_name)
+        if package_version < min_version:
+            raise ImportError(f"The version of {module_name} is {package_version}, but at least version {min_version} is required.")
+    except metadata.PackageNotFoundError:
+        raise ImportError(f"{module_name} is not installed.")
+
 def env_checking ( app ):
     """Checking the running environment required by the app.
     
@@ -45,7 +56,7 @@ def env_checking ( app ):
     :raises: context.env.ExoEnvError
     """
     envFlag = True
-        
+    
     #checking for the python version
     if sys.version_info[0] != 3 or sys.version_info[1] < 3:
         raise ExoEnvError(
@@ -56,34 +67,24 @@ def env_checking ( app ):
 
     #checking for scipy library
     try:
-        import scipy
-        scipy_version_info = scipy.__version__
-        scipy_version_info = scipy_version_info.split('.')
-        if int(scipy_version_info[1]) != 13 or int(scipy_version_info[2]) < 2:
-            envFlag = False
+        check_module_version("scipy", "0.13.2")
     except ImportError:
         envFlag = False
     finally:
-        if(not envFlag):
+        if (not envFlag):
             raise ExoEnvError(
                               "EnvError: checking the scipy module, the %s requires " \
                               % app._meta.label + \
                               "scipy-0.13.2 or above. Please see http://www.scipy.org."
                              )
 
-                             
-  
     #checking for numpy library
     try:
-        import numpy
-        numpy_version_info = numpy.__version__
-        numpy_version_info = numpy_version_info.split('.')
-        if int(numpy_version_info[0]) < 1 or int(numpy_version_info[1]) < 8:
-            envFlag = False
+        check_module_version("numpy", "1.8.0")
     except ImportError:
         envFlag = False
     finally:
-        if(not envFlag):
+        if (not envFlag):
             raise ExoEnvError(
                               "EnvError: checking the numpy module, the %s requires " 
                               % app._meta.label + 
@@ -92,11 +93,7 @@ def env_checking ( app ):
                              
     #checking for pysam library
     try:
-        import pysam
-        pysam_version_info = pysam.__version__
-        pysam_version_info = pysam_version_info.split('.')
-        if int(pysam_version_info[1]) < 7 or int(pysam_version_info[2]) < 7:
-            envFlag = False
+        check_module_version("pysam", "0.7.7")
     except ImportError:
         envFlag = False
     finally:

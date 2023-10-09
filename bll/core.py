@@ -15,8 +15,6 @@ the distribution).
 # ------------------------------------
 # python modules
 # ------------------------------------
-import sys
-import os
 import abc
 from treelib import Tree
 

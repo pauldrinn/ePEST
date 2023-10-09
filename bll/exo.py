@@ -15,15 +15,8 @@ the distribution).
 # ------------------------------------
 # python modules
 # ------------------------------------
-import os
-import time
-
 import bll.core as core
 import bll.util as util
-import bll.dedup as dedup
-import bll.param as param
-#import bll.peak as peak
-#import bll.border as border
         
 class ChromDatar(object):
     '''represent the data-content of each chromosome. Additional features 

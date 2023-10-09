@@ -12,19 +12,15 @@ the distribution).
 @contact: iamyezhenqing@gmail.com
 """
 
-import time
 import os
 import random
 import networkx
 import numpy
-import math
-import scipy
 from scipy import stats
 from networkx.readwrite import json_graph
 from collections import defaultdict
 from numpy.linalg.linalg import LinAlgError
 
-from bll import util 
 from bll.core import BioTasker
 from bll.core import TaskDatar
 

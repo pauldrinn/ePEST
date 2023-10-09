@@ -1,4 +1,3 @@
-import numpy
 from bll import util
 
 class ParameterEstimator(object):

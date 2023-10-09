@@ -14,12 +14,10 @@ the distribution).
 
 import re
 import os
-import time
 import numpy
 import random
 import networkx
 import collections
-import threading
 from scipy import stats
 
 from bll.core import BioTasker

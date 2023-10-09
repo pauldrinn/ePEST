@@ -12,13 +12,9 @@ the distribution).
 @contact: iamyezhenqing@gmail.com
 """
 
-import time
 import os
 import networkx
 import numpy
-import scipy
-from scipy import stats
-from scipy import misc
 from bll import util 
 
 from bll.core import BioTasker
@@ -234,7 +230,7 @@ class PeakScanner(BioTasker):
                     L += start - head[0]
                     start = head[0]
                 else:
-	                break
+                    break
             else:
                 break
         while( end-middle < span ):
