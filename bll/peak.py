@@ -86,9 +86,9 @@ class PeakScanner(BioTasker):
                 nRefDiGraph.add_edge(nHead, R2)
                 nHead = R2
         
-        pHead = pRefDiGraph.successors('PHEAD')[0]
+        pHead = list(pRefDiGraph.successors('PHEAD'))[0]
         pRefDiGraph.remove_node('PHEAD')
-        nHead = nRefDiGraph.successors('NHEAD')[0]
+        nHead = list(nRefDiGraph.successors('NHEAD'))[0]
         nRefDiGraph.remove_node('NHEAD')
         # data-structure has been transformed and attached to taskDatar object
         # it's time to clear these unnecessary data members now
@@ -174,8 +174,8 @@ class PeakScanner(BioTasker):
         edgeValList = []
         current = head
         while(True):
-            succ = refDiGraph.successors(current)
-            if(succ):
+            succ = list(refDiGraph.successors(current))
+            if (succ):
                 value = measure((current, succ[0]))
                 edgeValList.append(value)
                 current = succ[0]
@@ -196,9 +196,9 @@ class PeakScanner(BioTasker):
       
         components = [[head]]  
         current, cursor = head, 0
-        while(True):
-            succ = refDiGraph.successors(current)
-            if(succ):
+        while (True):
+            succ = list(refDiGraph.successors(current))
+            if (succ):
                 if(edgeFlagList[cursor]):
                     components[-1].append(succ[0])
                 else:
@@ -221,11 +221,11 @@ class PeakScanner(BioTasker):
         #N = sum( [ refDiGraph.node[node]['depth'] for node in component] )
         poslist, vallist = self.nodeDepthFlowing(start, end, refDiGraph)
         N = sum(vallist)
-        while( middle-start < span ):  
+        while (middle-start < span):  
         #if the whole component is smaller than required extension 10kb
-            head = refDiGraph.predecessors(start)
-            if( head ):
-                if( (middle-head[0]) <= span ):
+            head = list(refDiGraph.predecessors(start))
+            if (head):
+                if ((middle-head[0]) <= span):
                     N += refDiGraph.node[head[0]]['depth']
                     L += start - head[0]
                     start = head[0]
@@ -233,10 +233,10 @@ class PeakScanner(BioTasker):
                     break
             else:
                 break
-        while( end-middle < span ):
-            tail = refDiGraph.successors(end)  
-            if( tail ):
-                if( (tail[0]-middle) <= span ): 
+        while (end-middle < span):
+            tail = list(refDiGraph.successors(end))
+            if (tail):
+                if ((tail[0]-middle) <= span): 
                     N += refDiGraph.node[tail[0]]['depth']
                     L += tail[0] - end
                     end = tail[0]
@@ -324,8 +324,8 @@ class PeakScanner(BioTasker):
             depth = refDiGraph.node[pos]['depth']
             posList.append(pos)
             valList.append(depth)
-            succs = refDiGraph.successors(pos)
-            if(succs):
+            succs = list(refDiGraph.successors(pos))
+            if (succs):
                 pos = succs[0]
             else:
                 break  # to the end          
@@ -383,8 +383,8 @@ class PeakScanner(BioTasker):
         PNPairList = set()
         for edge in peakPairDiGraph.edges():
             source, target = edge[0], edge[1]
-            if(   source in peakPairDiGraph.successors(target) \
-              and target in peakPairDiGraph.successors(source) ):
+            if (source in list(peakPairDiGraph.successors(target)) \
+              and target in list(peakPairDiGraph.successors(source))):
                 pair = (source, target) if source.startswith('P-') else (target, source)
                 PNPairList.add(pair)
         return list(PNPairList)     

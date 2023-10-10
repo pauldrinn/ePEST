@@ -93,14 +93,14 @@ class BorderScanner(BioTasker):
         #endR2 may not
         posSignalDict = defaultdict(int)
         current = startR2
-        while(current and current <= endR2):
+        while (current and current <= endR2):
             toR1sDict = refR2DiGraph.node[current]['toR1s']
             for R1 in toR1sDict.keys():
                 if(R1 < 0 ): # In the forward case, R2 is positive
                     posSignalDict[abs(R1)] += toR1sDict[R1]
             #current = refR2DiGraph.successors(current)[0]
-            succs = refR2DiGraph.successors(current)
-            if(succs):
+            succs = list(refR2DiGraph.successors(current))
+            if (succs):
                 current = succs[0]
             else:
                 break
@@ -111,12 +111,12 @@ class BorderScanner(BioTasker):
         #endR2 may not
         posSignalDict = defaultdict(int)
         current = startR2
-        while(current and current <= endR2):
+        while (current and current <= endR2):
             degree = refR2DiGraph.node[current]['depth']
             posSignalDict[current] = degree
             #current = refR2DiGraph.successors(current)[0]
-            succs = refR2DiGraph.successors(current)
-            if(succs):
+            succs = list(refR2DiGraph.successors(current))
+            if (succs):
                 current = succs[0]
             else:
                 break
@@ -133,8 +133,8 @@ class BorderScanner(BioTasker):
                 if(R1 > 0 ): # In the backward case, R2 is negative
                     posSignalDict[abs(R1)] += toR1sDict[R1]
             #current = refR2DiGraph.predecessors(current)[0]
-            preds = refR2DiGraph.predecessors(current)
-            if(preds):
+            preds = list(refR2DiGraph.predecessors(current))
+            if (preds):
                 current = preds[0]
             else:
                 break
@@ -145,12 +145,12 @@ class BorderScanner(BioTasker):
         #startR2 may not
         posSignalDict = defaultdict(int)
         current = endR2
-        while(current and current >= startR2):
+        while (current and current >= startR2):
             degree = refR2DiGraph.node[current]['depth']
             posSignalDict[current] = degree
             #current = refR2DiGraph.predecessors(current)[0]
-            preds = refR2DiGraph.predecessors(current)
-            if(preds):
+            preds = list(refR2DiGraph.predecessors(current))
+            if (preds):
                 current = preds[0]
             else:
                 break

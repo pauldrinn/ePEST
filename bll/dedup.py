@@ -91,11 +91,11 @@ class DeduplicateWorker(BioTasker):
         pointNode = R2
         extendedR2List = []
         # forward step
-        while(True):
-            prevs = lociDiGraph.predecessors(pointNode)
+        while (True):
+            prevs = list(lociDiGraph.predecessors(pointNode))
             if (prevs):
                 prev = prevs[0]
-                if (R2 - prev < taskDatar._soft_EXTENTION ):
+                if (R2 - prev < taskDatar._soft_EXTENTION):
                     extendedR2List.append(prev)
                 else:
                     break
@@ -105,11 +105,11 @@ class DeduplicateWorker(BioTasker):
         extendedR2List.reverse()                
         # backward step
         pointNode = R2 # reset
-        while(True):
-            nexts = lociDiGraph.successors(pointNode)
+        while (True):
+            nexts = list(lociDiGraph.successors(pointNode))
             if (nexts):
                 next = nexts[0]
-                if ( next - R2 < taskDatar._soft_EXTENTION ):
+                if (next - R2 < taskDatar._soft_EXTENTION):
                     extendedR2List.append(next)
                 else:
                     break
@@ -117,7 +117,7 @@ class DeduplicateWorker(BioTasker):
             else:
                 break            
         # count R1 points when given R2      
-        localPoints = [ self.getLinkedR1Count(point, lociDiGraph) for point in extendedR2List]
+        localPoints = [self.getLinkedR1Count(point, lociDiGraph) for point in extendedR2List]
         return localPoints
         
     def findDuplicates(self, taskDatar, chrid):
@@ -220,9 +220,9 @@ class DeduplicateWorker(BioTasker):
                     dupFragSet = dupR1FragDict[abs(R1)]
                     fragments = set(fragments).difference(dupFragSet)
                 toR1sDict[R1] = len(fragments)
-            if (sum(toR1sDict.values())==0):
-                prevs = lociDiGraph.predecessors(R2)
-                nexts = lociDiGraph.successors(R2)
+            if (sum(toR1sDict.values()) == 0):
+                prevs = list(lociDiGraph.predecessors(R2))
+                nexts = list(lociDiGraph.successors(R2))
                 if (prevs and nexts):
                     lociDiGraph.add_edge(prevs[0], nexts[0])
                 lociDiGraph.remove_node(R2)                    
