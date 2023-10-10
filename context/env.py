@@ -16,6 +16,7 @@ the distribution).
 # python modules
 # ------------------------------------
 import sys
+from packaging import version
 if sys.version_info >= (3, 8):
     import importlib.metadata as metadata  # For Python 3.8 and newer
 else:
@@ -43,7 +44,7 @@ class ExoEnvError(Exception):
 def check_module_version(module_name, min_version):
     try:
         package_version = metadata.version(module_name)
-        if package_version < min_version:
+        if version.parse(package_version) < version.parse(min_version):
             raise ImportError(f"The version of {module_name} is {package_version}, but at least version {min_version} is required.")
     except metadata.PackageNotFoundError:
         raise ImportError(f"{module_name} is not installed.")
