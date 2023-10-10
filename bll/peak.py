@@ -244,25 +244,25 @@ class PeakScanner(BioTasker):
                     break
             else:
                 break
-        return L, N                
+        return L, N
     
     def outlierEdgeCutting(self, paramGraph, measure, k=3.0): 
-        paramEdges = paramGraph.edges()
-        edgeValList = [ measure(edge) for edge in paramEdges ]             
-        edgeFlagList = [1 for i in range(0, len(edgeValList))]
+        paramEdges = list(paramGraph.edges())
+        edgeValList = [measure(edge) for edge in paramEdges]
+        edgeFlagList = [1 for _ in range(0, len(edgeValList))]
         obslist, enumber = edgeValList, len(edgeValList)
-        while(True):   
+        while (True):
             valarray = numpy.array(obslist)
             mu, sigma = numpy.mean(valarray), numpy.std(valarray)
-            edgeFlagList = [ 0 if val-mu > k*sigma else 1 for val in edgeValList ] 
-            obslist = [ val for i,val in enumerate(edgeValList) if edgeFlagList[i] ]
+            edgeFlagList = [ 0 if val-mu > k*sigma else 1 for val in edgeValList] 
+            obslist = [val for i, val in enumerate(edgeValList) if edgeFlagList[i]]
             onumber = len(obslist)
-            if(onumber < enumber):
+            if (onumber < enumber):
                 enumber = onumber
             else:
                 break
         eraseEdges = [paramEdges[i] for i,flag in enumerate(edgeFlagList) if not flag]
-        paramGraph.remove_edges_from(eraseEdges)        
+        paramGraph.remove_edges_from(eraseEdges)
         return paramGraph
         
     def peakMerging(self, peakList, compSerials, refDiGraph):
