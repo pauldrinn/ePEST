@@ -94,7 +94,7 @@ class BorderScanner(BioTasker):
         posSignalDict = defaultdict(int)
         current = startR2
         while (current and current <= endR2):
-            toR1sDict = refR2DiGraph.node[current]['toR1s']
+            toR1sDict = refR2DiGraph.nodes[current]['toR1s']
             for R1 in toR1sDict.keys():
                 if(R1 < 0 ): # In the forward case, R2 is positive
                     posSignalDict[abs(R1)] += toR1sDict[R1]
@@ -112,7 +112,7 @@ class BorderScanner(BioTasker):
         posSignalDict = defaultdict(int)
         current = startR2
         while (current and current <= endR2):
-            degree = refR2DiGraph.node[current]['depth']
+            degree = refR2DiGraph.nodes[current]['depth']
             posSignalDict[current] = degree
             #current = refR2DiGraph.successors(current)[0]
             succs = list(refR2DiGraph.successors(current))
@@ -128,7 +128,7 @@ class BorderScanner(BioTasker):
         posSignalDict = defaultdict(int)
         current = endR2
         while(current and current >= startR2):
-            toR1sDict = refR2DiGraph.node[current]['toR1s']
+            toR1sDict = refR2DiGraph.nodes[current]['toR1s']
             for R1 in toR1sDict.keys():
                 if(R1 > 0 ): # In the backward case, R2 is negative
                     posSignalDict[abs(R1)] += toR1sDict[R1]
@@ -146,7 +146,7 @@ class BorderScanner(BioTasker):
         posSignalDict = defaultdict(int)
         current = endR2
         while (current and current >= startR2):
-            degree = refR2DiGraph.node[current]['depth']
+            degree = refR2DiGraph.nodes[current]['depth']
             posSignalDict[current] = degree
             #current = refR2DiGraph.predecessors(current)[0]
             preds = list(refR2DiGraph.predecessors(current))

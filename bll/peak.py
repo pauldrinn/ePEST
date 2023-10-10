@@ -106,7 +106,7 @@ class PeakScanner(BioTasker):
         return taskDatar      
     
     def calcEntropy(self, group, refDiGraph):  
-        degrees = [refDiGraph.node[n]['depth'] for n in group]
+        degrees = [refDiGraph.nodes[n]['depth'] for n in group]
         degsum = sum(degrees)
         problist = [1.0*val/degsum for val in degrees ]
         entropy = sum([-prob*numpy.log2(prob) for prob in problist])
@@ -121,10 +121,10 @@ class PeakScanner(BioTasker):
         nComponents = self.breakingIntoComponents(nRefDiGraph, taskDatar.nHead, measure, k=3.0)
         
         #here we filtering those small components 
-        degreepf = lambda group: sum( [pRefDiGraph.node[n]['depth'] for n in group] )
-        pComponents = [ item for item in pComponents if degreepf(item) >= self.R ]
-        degreenf = lambda group: sum( [ nRefDiGraph.node[n]['depth'] for n in group] )
-        nComponents = [ item for item in nComponents if degreenf(item) >= self.R ]
+        degreepf = lambda group: sum([pRefDiGraph.nodes[n]['depth'] for n in group])
+        pComponents = [item for item in pComponents if degreepf(item) >= self.R]
+        degreenf = lambda group: sum([nRefDiGraph.nodes[n]['depth'] for n in group])
+        nComponents = [item for item in nComponents if degreenf(item) >= self.R]
         '''
         #maybe we also need filter the components by entropy further
         pEntropyList = [ self.calcEntropy(item, pRefDiGraph) for item in pComponents ]
@@ -218,7 +218,7 @@ class PeakScanner(BioTasker):
         middle = int(0.5 * (start + end))
         span = int(0.5 * extend)
         L = end - start + 1
-        #N = sum( [ refDiGraph.node[node]['depth'] for node in component] )
+        #N = sum( [ refDiGraph.nodes[node]['depth'] for node in component] )
         poslist, vallist = self.nodeDepthFlowing(start, end, refDiGraph)
         N = sum(vallist)
         while (middle-start < span):  
@@ -226,7 +226,7 @@ class PeakScanner(BioTasker):
             head = list(refDiGraph.predecessors(start))
             if (head):
                 if ((middle-head[0]) <= span):
-                    N += refDiGraph.node[head[0]]['depth']
+                    N += refDiGraph.nodes[head[0]]['depth']
                     L += start - head[0]
                     start = head[0]
                 else:
@@ -237,7 +237,7 @@ class PeakScanner(BioTasker):
             tail = list(refDiGraph.successors(end))
             if (tail):
                 if ((tail[0]-middle) <= span): 
-                    N += refDiGraph.node[tail[0]]['depth']
+                    N += refDiGraph.nodes[tail[0]]['depth']
                     L += tail[0] - end
                     end = tail[0]
                 else:
@@ -314,14 +314,14 @@ class PeakScanner(BioTasker):
         '''
         pos = start
         while(pos <= end):
-            depth = refDiGraph.node[pos]['depth']
+            depth = refDiGraph.nodes[pos]['depth']
             yield pos, depth
             pos = refDiGraph.successors(pos)[0]
         '''
         posList, valList = [], []
         pos = start
-        while(pos <= end):
-            depth = refDiGraph.node[pos]['depth']
+        while (pos <= end):
+            depth = refDiGraph.nodes[pos]['depth']
             posList.append(pos)
             valList.append(depth)
             succs = list(refDiGraph.successors(pos))

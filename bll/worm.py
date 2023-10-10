@@ -28,7 +28,7 @@ class InchWorm:
     
     def __init__(self, hostGraph, poslist, L, N, R=10, s=1, S=5, pvalue=0.0001):
         self.poslist = poslist
-        self.depthlist = [ hostGraph.node[node]['depth'] for node in poslist ]
+        self.depthlist = [hostGraph.nodes[node]['depth'] for node in poslist ]
         self.size = len(self.poslist) 
         self.L, self.N, self.R = L, N, R
         self.s, self.S = s, S
