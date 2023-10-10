@@ -67,7 +67,7 @@ class PeakScanner(BioTasker):
         nHead = 'NHEAD'
         nRefDiGraph.add_node(nHead)
         for R2 in sortedPoints:
-            toR1sDict = lociDiGraph.node[R2]['toR1s']
+            toR1sDict = lociDiGraph.nodes[R2]['toR1s']
             pcountDict = collections.defaultdict(int)
             ncountDict = collections.defaultdict(int)
             for R1 in toR1sDict.keys():

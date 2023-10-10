@@ -14,18 +14,18 @@ def loadBAMtoReadMapDict(bamfile):
         chrid = samrecords.getrname(record.tid)
         readid = record.qname.split()[0]
         start = record.pos  #on the reference, 0-based
-        #end   = start + record.rlen - 1 # [start,end]
-        end   = record.aend - 1 # [start,end]
+        #end = start + record.rlen - 1 # [start,end]
+        end = record.aend - 1 # [start,end]
         #'-' means negative strand, the pos is the 5'-end of reads
-        pos   = -end if record.is_reverse else start
-        if(chrid not in chrFragmentMapDict):
-	        chrFragmentMapDict[chrid] = {}
-        if(readid not in chrFragmentMapDict[chrid]):
+        pos = -end if record.is_reverse else start
+        if (chrid not in chrFragmentMapDict):
+            chrFragmentMapDict[chrid] = {}
+        if (readid not in chrFragmentMapDict[chrid]):
             chrFragmentMapDict[chrid][readid] = {}
-        if(record.is_read1):
+        if (record.is_read1):
             #R1 means exo-side of fragment
             chrFragmentMapDict[chrid][readid]['R1'] = pos
-        elif(record.is_read2):
+        elif (record.is_read2):
             #R2 means sonication-side of fragment
             chrFragmentMapDict[chrid][readid]['R2'] = pos
         else:
@@ -38,7 +38,7 @@ def getChromSizeDict(bamfile):
     chrSizeDict = {}
     bamhandle = pysam.Samfile(bamfile, 'rb')
     header = bamhandle.header
-    if('SQ' in header):
+    if ('SQ' in header):
         for item in header['SQ']:
             chrSizeDict[item['SN']] = item['LN']
     bamhandle.close()
@@ -47,7 +47,7 @@ def getChromSizeDict(bamfile):
 _LOGFACTORIALDICT = {0:0}
 _LOGFACTORIALDICT = { i:sum(map(numpy.log, range(1,i+1))) for i in range(1,201) }
 def fastLogFactorial(r):
-    if(r <= 200):
+    if (r <= 200):
         value = _LOGFACTORIALDICT[r]
     else:
         #Stirling's approximation (http://en.wikipedia.org/wiki/Stirling_formula)
@@ -59,15 +59,15 @@ def buildLociLinkGraph(fragmentMapDict, strand, primer):
     for fid in fragmentMapDict.keys():
         endsite = fragmentMapDict[fid][primer]
         flag = False
-        if( strand == '-' and endsite < 0 ): #negative strand
+        if ( strand == '-' and endsite < 0 ): #negative strand
             flag = True
-        if( strand == '+' and endsite > 0 ): #positive strand
+        if ( strand == '+' and endsite > 0 ): #positive strand
             flag = True
-        if(flag):
+        if (flag):
             node = abs(endsite)
-            if( not refLociDiGraph.has_node( node ) ):
+            if (not refLociDiGraph.has_node(node)):
                 refLociDiGraph.add_node(node, depth=0)
-            refLociDiGraph.node[node]['depth'] += 1		
+            refLociDiGraph.nodes[node]['depth'] += 1		
     nodes = refLociDiGraph.nodes()
     nodes = sorted(nodes)
     for i in range(0, len(nodes)-1):
@@ -96,7 +96,7 @@ def getFSizefromSingleLib(chrFragmentMapDict):
         fragmentDict = chrFragmentMapDict[chrid]
         for fid in fragmentDict.keys():
             pos = fragmentDict[fid]['SE']  
-            if( pos < 0 ): # negative strand
+            if ( pos < 0 ): # negative strand
                 pass
             else:  # positive strand
                 pass            

@@ -77,7 +77,7 @@ class DeduplicateWorker(BioTasker):
             return None
     
     def getLinkedR1Count(self, R2, lociDiGraph):
-        toR1sDict = lociDiGraph.node[R2]['toR1s']
+        toR1sDict = lociDiGraph.nodes[R2]['toR1s']
         localPoints = []
         for R1 in map(abs, toR1sDict.keys()):
             fragments = toR1sDict.get(R1,[])
@@ -125,7 +125,7 @@ class DeduplicateWorker(BioTasker):
         lociDiGraph = taskDatar._soft_lociDiGraph
         sortedPoints = taskDatar._soft_sortedPoints
         for R2 in sortedPoints:
-            toR1sDict = lociDiGraph.node[R2]['toR1s']
+            toR1sDict = lociDiGraph.nodes[R2]['toR1s']
             localPoints = None # prepare firstly, filled when necessary
             for R1 in map(abs, toR1sDict.keys()):
                 fragments = toR1sDict.get(R1,[])
@@ -213,7 +213,7 @@ class DeduplicateWorker(BioTasker):
         sortedPoints = taskDatar._soft_sortedPoints
         for R2 in sortedPoints:
             dupR1FragDict = R2R1_fragmentsDict.get(R2, None)
-            toR1sDict = lociDiGraph.node[R2]['toR1s']
+            toR1sDict = lociDiGraph.nodes[R2]['toR1s']
             for R1 in toR1sDict.keys():
                 fragments = toR1sDict[R1]
                 if (dupR1FragDict and abs(R1) in dupR1FragDict):
