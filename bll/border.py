@@ -13,6 +13,7 @@ the distribution).
 """
 
 import os
+import json
 import random
 import networkx
 import numpy
@@ -441,7 +442,8 @@ class BorderScanner(BioTasker):
         #----------------------------------------------
         borderPairDiGraph = taskDatar.borderPairDiGraph
         out = open(self.outDir + '/borderGraphs_on_' + chrid + '.json', 'w')
-        json_graph.dump(borderPairDiGraph, out)
+        out_data = json_graph.node_link_data(borderPairDiGraph)
+        json.dumps(out_data, out)
         out.close()
         '''
         testG = readwrite.json_graph.load(open('D:\\test.json')) ##
