@@ -29,7 +29,7 @@ class DeduplicateWorker(BioTasker):
         self.pargs   = pargs
         self.log = plog
 
-        if(self.pargs.regex==None):
+        if (self.pargs.regex==None):
             self.REGEX = "[a-zA-Z0-9]+:[0-9]:([0-9]+):([0-9]+):([0-9]+).*"
         else:
             self.REGEX = self.pargs.regex
@@ -38,7 +38,7 @@ class DeduplicateWorker(BioTasker):
         self.qvalue = self.pargs.qvalue
         
         output = self.pargs.output + '/Dedup'
-        if(not os.path.exists(self.pargs.output + '/Dedup')):
+        if (not os.path.exists(self.pargs.output + '/Dedup')):
             tmp = os.mkdir(output)   
     
     def configureTask(self, chromNode):
@@ -50,9 +50,9 @@ class DeduplicateWorker(BioTasker):
         for fid in fragMapDict.keys():
             R1 = fragMapDict[fid]['R1'] #to +/-
             R2 = abs(fragMapDict[fid]['R2'])
-            if(not lociDiGraph.has_node(R2)):
+            if (not lociDiGraph.has_node(R2)):
                 lociDiGraph.add_node(R2, toR1s=collections.defaultdict(list))
-            lociDiGraph.node[R2]['toR1s'][R1].append(fid)
+            lociDiGraph.nodes[R2]['toR1s'][R1].append(fid)
         nodes = sorted(lociDiGraph.nodes())
         for i in range(0, len(nodes)-1):
             lociDiGraph.add_edge(nodes[i], nodes[i+1])  
@@ -71,7 +71,7 @@ class DeduplicateWorker(BioTasker):
         
     def getLocation(self, readid):
         m = re.search(self.REGEX, readid)
-        if(m is not None):
+        if (m is not None):
             return list(map(int,m.groups()))
         else:
             return None
@@ -93,9 +93,9 @@ class DeduplicateWorker(BioTasker):
         # forward step
         while(True):
             prevs = lociDiGraph.predecessors(pointNode)
-            if(prevs):
+            if (prevs):
                 prev = prevs[0]
-                if( R2 - prev < taskDatar._soft_EXTENTION ):
+                if (R2 - prev < taskDatar._soft_EXTENTION ):
                     extendedR2List.append(prev)
                 else:
                     break
@@ -107,9 +107,9 @@ class DeduplicateWorker(BioTasker):
         pointNode = R2 # reset
         while(True):
             nexts = lociDiGraph.successors(pointNode)
-            if(nexts):
+            if (nexts):
                 next = nexts[0]
-                if( next - R2 < taskDatar._soft_EXTENTION ):
+                if ( next - R2 < taskDatar._soft_EXTENTION ):
                     extendedR2List.append(next)
                 else:
                     break
@@ -142,13 +142,13 @@ class DeduplicateWorker(BioTasker):
                 # those amplification reads would introduce an abrupt can 
                 # be detected by a statistical scanning.
                 #------------------------------------------------------
-                if(size >= 5 ): 
+                if (size >= 5 ): 
                 # here we set the baseline (5) due to  
                 # 1.0 - stats.skellam.cdf(5, 1, 1) = 0.00025
                 # less than 5, the qvalue will become in-significant                
-                    if(localPoints is None):
+                    if (localPoints is None):
                         localPoints = self.buildLocalPoints(R2, taskDatar)      
-                    if(len(localPoints) == 0):
+                    if (len(localPoints) == 0):
                         #if there are no neighbouring reads, it means this fragment 
                         #itself is too sparse here, and be a rare event
                         #amplifyFragments.extend(fragments)
@@ -157,11 +157,11 @@ class DeduplicateWorker(BioTasker):
                         lociLambda = numpy.mean(localPoints)
                     #go to Skellam distribution routine    
                     k = numpy.ceil(size - lociLambda)
-                    if(k <= 0):
+                    if (k <= 0):
                         continue
                     else:
                         prb = 1.0 - stats.skellam.cdf(k, lociLambda, lociLambda) 
-                        if(prb <= self.qvalue):
+                        if (prb <= self.qvalue):
                             ampids = random.sample(fragments, int(k)-1 ) 
                             #amplifyFragments.extend(ampids)
                             for item in ampids:
@@ -173,17 +173,17 @@ class DeduplicateWorker(BioTasker):
                 #------------------------------------------------------
                 for i in range(0, size):
                     fieldi= self.getLocation(fragments[i])   #taili,xi,yi
-                    if(fieldi is None or len(fieldi)!=3):
+                    if (fieldi is None or len(fieldi)!=3):
                         continue
                     for j in range(i+1,size):
                         fieldj= self.getLocation(fragments[j])  #tailj,xj,yj
-                        if(fieldj is None or len(fieldj)!=3):
+                        if (fieldj is None or len(fieldj)!=3):
                             continue
-                        if(fieldi[0]!=fieldj[0]): #tile
+                        if (fieldi[0]!=fieldj[0]): #tile
                             continue
-                        if(abs(fieldi[1]-fieldj[1]) > self.optDistance): #x-location
+                        if (abs(fieldi[1]-fieldj[1]) > self.optDistance): #x-location
                             continue
-                        if(abs(fieldi[2]-fieldj[2]) <= self.optDistance): #y-location
+                        if (abs(fieldi[2]-fieldj[2]) <= self.optDistance): #y-location
                             opticalFragments.append( (R2, R1, fragments[j], fragments[i]) )
                 #------------------------------------------------------               
         taskDatar._soft_amplifyFragments = amplifyFragments
@@ -199,13 +199,13 @@ class DeduplicateWorker(BioTasker):
         R2R1_fragmentsDict = collections.defaultdict(dict)
         for record in taskDatar._soft_amplifyFragments:
             R2, R1, frag, k, size, lociLambda, prb = record
-            if(R1 not in R2R1_fragmentsDict[R2]):
+            if (R1 not in R2R1_fragmentsDict[R2]):
                 R2R1_fragmentsDict[R2][R1] = set()
             R2R1_fragmentsDict[R2][R1].add(frag)
                         
         for record in taskDatar._soft_opticalFragments:
             R2, R1, optfid, matchfid = record
-            if(R1 not in R2R1_fragmentsDict[R2]):
+            if (R1 not in R2R1_fragmentsDict[R2]):
                 R2R1_fragmentsDict[R2][R1] = set()
             R2R1_fragmentsDict[R2][R1].add(optfid)            
         
@@ -216,14 +216,14 @@ class DeduplicateWorker(BioTasker):
             toR1sDict = lociDiGraph.node[R2]['toR1s']
             for R1 in toR1sDict.keys():
                 fragments = toR1sDict[R1]
-                if(dupR1FragDict and abs(R1) in dupR1FragDict):
+                if (dupR1FragDict and abs(R1) in dupR1FragDict):
                     dupFragSet = dupR1FragDict[abs(R1)]
                     fragments = set(fragments).difference(dupFragSet)
                 toR1sDict[R1] = len(fragments)
-            if(sum(toR1sDict.values())==0):
+            if (sum(toR1sDict.values())==0):
                 prevs = lociDiGraph.predecessors(R2)
                 nexts = lociDiGraph.successors(R2)
-                if(prevs and nexts):
+                if (prevs and nexts):
                     lociDiGraph.add_edge(prevs[0], nexts[0])
                 lociDiGraph.remove_node(R2)                    
         sortedPoints = sorted(lociDiGraph.nodes())
