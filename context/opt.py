@@ -24,45 +24,45 @@ import bll.util as util
 class ExoOptError(Exception):
     """
     General options related errors.
-    
+
     :param msg: The error message.
-    
+
     """
     def __init__(self, msg):
         Exception.__init__(self)
         self.msg = msg
-    
+
     def __str__(self):
         return self.msg
-        
+
 # ------------------------------------
 # Misc functions
 # ------------------------------------
-def opt_validating ( app ):
+def opt_validating(app):
     """
     validating the options.
     :param app: the underlying application.
     :raises: context.env.ExoEnvError
     """
-    
+
     optFlag = True
-    
+
     # the format of input file should be BAM
     try:
-        bamfile = app.pargs.input 
+        bamfile = app.pargs.input
         #app.log.debug("Bamfile:" + bamfile)
         #parsing the header information
         gSizeDict = util.getChromSizeDict(bamfile)
-        if(len(gSizeDict)==0):
+        if (len(gSizeDict)==0):
             optFlag = False
         #testing one record...
         bamhandle = pysam.Samfile(bamfile,'rb')
         record = next(bamhandle)
-        bamhandle.close() 
+        bamhandle.close()
     except:
         optFlag = False
     finally:
-        if(not optFlag):
+        if (not optFlag):
             raise ExoOptError(
                               "OptionError: loading the input bamfile, please check the correct BAM format! " +
                               "And be aware the header information that should contain the size of each chromosome."
@@ -83,7 +83,3 @@ def opt_validating ( app ):
             raise ExoOptError(
                               "OptionError: The directory name for output or volume label syntax is incorrect!"
                              )
-   
-    
-    # --mode parameter checking
-    

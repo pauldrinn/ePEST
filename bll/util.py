@@ -1,8 +1,8 @@
 import pysam
 import numpy
 import networkx
-    
-def loadBAMtoReadMapDict(bamfile):         
+
+def loadBAMtoReadMapDict(bamfile, chroms):
     #strand should be True or False
     samrecords = pysam.Samfile(bamfile,'rb')  #sorted bamfile; if paired, should be properly paired
     chrFragmentMapDict = {}  #organized by chromosome
@@ -12,6 +12,9 @@ def loadBAMtoReadMapDict(bamfile):
         #    break
         #count += 1
         chrid = samrecords.getrname(record.tid)
+        if (chrid not in chroms):
+            continue
+
         readid = record.qname.split()[0]
         start = record.pos  #on the reference, 0-based
         #end = start + record.rlen - 1 # [start,end]
@@ -30,10 +33,10 @@ def loadBAMtoReadMapDict(bamfile):
             chrFragmentMapDict[chrid][readid]['R2'] = pos
         else:
             #Single End
-            chrFragmentMapDict[chrid][readid]['SE'] = pos  
+            chrFragmentMapDict[chrid][readid]['SE'] = pos
     return chrFragmentMapDict
-    
- 
+
+
 def getChromSizeDict(bamfile):
     chrSizeDict = {}
     bamhandle = pysam.Samfile(bamfile, 'rb')
@@ -53,7 +56,7 @@ def fastLogFactorial(r):
         #Stirling's approximation (http://en.wikipedia.org/wiki/Stirling_formula)
         value = 0.5*numpy.log(2.0*numpy.pi*r) + r*(numpy.log(r) - 1) + 0.083333/r
     return value  
-    
+
 def buildLociLinkGraph(fragmentMapDict, strand, primer):
     refLociDiGraph = networkx.DiGraph()
     for fid in fragmentMapDict.keys():
@@ -67,29 +70,29 @@ def buildLociLinkGraph(fragmentMapDict, strand, primer):
             node = abs(endsite)
             if (not refLociDiGraph.has_node(node)):
                 refLociDiGraph.add_node(node, depth=0)
-            refLociDiGraph.nodes[node]['depth'] += 1		
+            refLociDiGraph.nodes[node]['depth'] += 1
     nodes = refLociDiGraph.nodes()
     nodes = sorted(nodes)
     for i in range(0, len(nodes)-1):
         refLociDiGraph.add_edge(nodes[i], nodes[i+1])
     return nodes, refLociDiGraph    
-    
+
 
 def getFragSizeOfPairedLib(chrFragmentMapDict):
     #those paired reads has been validated as properly paired
     #so we don't need to valid their position here
     fragmentSizes = []
     for chrid in chrFragmentMapDict.keys():
-        fragmentDict = chrFragmentMapDict[chrid]	
+        fragmentDict = chrFragmentMapDict[chrid]
         for fid in fragmentDict.keys():
             R1 = fragmentDict[fid]['R1']
             R2 = fragmentDict[fid]['R2']
-            fragmentSizes.append(abs(abs(R1)-abs(R2)))	
+            fragmentSizes.append(abs(abs(R1)-abs(R2)))
     fragMean = numpy.mean(fragmentSizes)
     fragStd  = numpy.std(fragmentSizes)
     return fragMean, fragStd 
-    
-#how we could evaluate the fragment size from single-end library?    
+
+#how we could evaluate the fragment size from single-end library?
 def getFSizefromSingleLib(chrFragmentMapDict):
     fragmentSizes = []
     for chrid in chrFragmentMapDict.keys():
@@ -101,4 +104,3 @@ def getFSizefromSingleLib(chrFragmentMapDict):
             else:  # positive strand
                 pass            
     return None
-

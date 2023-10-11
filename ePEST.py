@@ -89,12 +89,15 @@ try:
     
     app.args.add_argument('input', metavar='--input.bam', help="the bamfile from ChIP-exo. REQUIRED")
     
-    app.args.add_argument('-o', '--output', help="the output fold for results. \
+    app.args.add_argument('-o', '--output', help="the output folder for results. \
                                                   Default is the current directory.")
         
     #app.args.add_argument('-mode', '--mode', choices=['single', 'pair'], default='pair',
     #                      help="The sequencing mode. Default=pair")
     
+    app.args.add_argument('-C', '--include-chroms', action='store', metavar='chroms', type=str, nargs='*', 
+                          default=None, dest='included_chroms', help="the chromosomes to be included for analysis. Default=None")
+
     app.args.add_argument('-r', '--regex', action='store', metavar='REGEX', \
                            default="[a-zA-Z0-9]+:[0-9]:([0-9]+):([0-9]+):([0-9]+).*",
                            help="the read id pattern. The Default is setted with Solexa platform: [a-zA-Z0-9]+:[0-9]:([0-9]+):([0-9]+):([0-9]+).*")

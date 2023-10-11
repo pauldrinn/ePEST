@@ -43,8 +43,9 @@ class ExoBlocker(core.BioBlocker):
         #self.log.info("%s: Initializing data for model..." % (time.ctime()))
         self.log.info("Initializing data for model..." )
         input = self.pargs.input
+        included_chroms = self.pargs.included_chroms
         chrSizeDict = util.getChromSizeDict(input)
-        chrFragmentMapDict = util.loadBAMtoReadMapDict(input)
+        chrFragmentMapDict = util.loadBAMtoReadMapDict(input, included_chroms)
         baseTree = self.dataModel.baseTree
         for chr in chrFragmentMapDict.keys():
             chromDatar = ChromDatar(chr)

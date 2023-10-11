@@ -27,17 +27,17 @@ else:
 class ExoEnvError(Exception):
     """
     General environment related errors.
-    
+
     :param msg: The error message.
-    
+
     """
     def __init__(self, msg):
         Exception.__init__(self)
         self.msg = msg
-    
+
     def __str__(self):
         return self.msg
-        
+
 # ------------------------------------
 # Misc functions
 # ------------------------------------
@@ -57,7 +57,7 @@ def env_checking ( app ):
     :raises: context.env.ExoEnvError
     """
     envFlag = True
-    
+
     #checking for the python version
     if sys.version_info[0] != 3 or sys.version_info[1] < 3:
         raise ExoEnvError(
@@ -87,11 +87,11 @@ def env_checking ( app ):
     finally:
         if (not envFlag):
             raise ExoEnvError(
-                              "EnvError: checking the numpy module, the %s requires " 
+                              "EnvError: checking the numpy module, the %s requires "
                               % app._meta.label + 
                               "numpy-1.8.0 or above. Please see http://www.numpy.org."
                              )
-                             
+
     #checking for pysam library
     try:
         check_module_version("pysam", "0.7.7")
@@ -103,7 +103,4 @@ def env_checking ( app ):
                               "EnvError: checking the pysam module, the %s requires " 
                               % app._meta.label + 
                               "pysam-0.7.7 or above. Please see http://code.google.com/p/pysam/"
-                             )                         
-                             
-
-
+                             )

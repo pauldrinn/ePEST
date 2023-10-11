@@ -24,7 +24,7 @@ def processWorkBee(chromNodes, results, pargs, plog):
             #print("%s: Exiting" % proc_i)
             chromNodes.task_done()
             break
-        chromId = next_chrom.identifier   
+        chromId = next_chrom.identifier
         #time.sleep(10)
         #==============================
         taskSuite = decorateTaskSuite(pargs, plog, next_chrom)
@@ -39,7 +39,7 @@ def decorateTaskSuite(pargs, plog, chromNode):
     # pair-mode
     #if(pargs.mode == 'pair'):
     if(True):
-        #plog.info("%s: Preparing for PairMode... " % (time.ctime())) 
+        #plog.info("%s: Preparing for PairMode... " % (time.ctime()))
         #----------------Dedup task section---------------------#
         if(pargs.dedup):
             dedupTask = dedup.DeduplicateWorker(pargs, plog)
@@ -48,16 +48,15 @@ def decorateTaskSuite(pargs, plog, chromNode):
             #prepare the initial data structure...working...
             pass
                 
-        #----------------Peak calling section-------------------#   
-        peakScanner = peak.PeakScanner(pargs, plog) 
-        taskSuite.addTask(peakScanner)     
+        #----------------Peak calling section-------------------#
+        peakScanner = peak.PeakScanner(pargs, plog)
+        taskSuite.addTask(peakScanner)
             
-        #----------------Border Scanning section----------------#   
-        borderScanner = border.BorderScanner(pargs, plog) 
-        taskSuite.addTask(borderScanner)      
-    # single-mode    
+        #----------------Border Scanning section----------------#
+        borderScanner = border.BorderScanner(pargs, plog)
+        taskSuite.addTask(borderScanner)
+    # single-mode
     else: 
         #plog.info("%s: Preparing for SingleMode... " % (time.ctime())) 
         pass
-    return taskSuite             
-    
+    return taskSuite

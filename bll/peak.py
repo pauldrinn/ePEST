@@ -33,31 +33,30 @@ class PeakScanner(BioTasker):
         self.R = self.pargs.rscan
         self.s = self.pargs.minstep
         self.S = self.pargs.maxstep
-        self.pvalue = self.pargs.pvalue        
-        
+        self.pvalue = self.pargs.pvalue
+
         # preparing the output fold
         if(not os.path.exists(self.pargs.output + '/Peak')):
             tmp = os.mkdir(self.pargs.output + '/Peak') 
-        self.outDir = self.pargs.output + '/Peak'            
-        
+        self.outDir = self.pargs.output + '/Peak'
+
     def configureTask(self, chromNode):
         chromDatar = chromNode.data 
         taskDatar = self.configurePairMode(chromDatar)
-        '''        
+        '''
         if(self.pargs.mode == 'pair'):
             taskDatar = self.configurePairMode(chromDatar)
         else:
             taskDatar = self.configureSingleMode(chromDatar)
         '''
         return taskDatar
-        
-        
-    def configurePairMode(self, chromDatar): 
-        taskDatar = TaskDatar()    
-        lociDiGraph = chromDatar.lociDiGraph 
+
+    def configurePairMode(self, chromDatar):
+        taskDatar = TaskDatar()
+        lociDiGraph = chromDatar.lociDiGraph
         sortedPoints = chromDatar.sortedPoints
-        
-        # for pair-mode, we need separate the positive strand 
+
+        # for pair-mode, we need separate the positive strand
         # and negative strand from the above data-structure,
         # because initially we have "absolute" the R2 positions.
         pRefDiGraph = networkx.DiGraph()
@@ -71,21 +70,21 @@ class PeakScanner(BioTasker):
             pcountDict = collections.defaultdict(int)
             ncountDict = collections.defaultdict(int)
             for R1 in toR1sDict.keys():
-                if(R1 > 0): # R1 is positive, so R2 is negative
+                if (R1 > 0): # R1 is positive, so R2 is negative
                     ncountDict[R1] += toR1sDict[R1]
                 else: # now R2 is positive
                     pcountDict[R1] += toR1sDict[R1]
-            pdegree = sum(pcountDict.values())        
-            if( pdegree > 0 ):
+            pdegree = sum(pcountDict.values())
+            if (pdegree > 0):
                 pRefDiGraph.add_node(R2, toR1s=pcountDict, depth=pdegree)
                 pRefDiGraph.add_edge(pHead, R2)
                 pHead = R2
-            ndegree = sum(ncountDict.values())    
-            if( ndegree > 0 ):
+            ndegree = sum(ncountDict.values())
+            if (ndegree > 0):
                 nRefDiGraph.add_node(R2, toR1s=ncountDict, depth=ndegree)
                 nRefDiGraph.add_edge(nHead, R2)
                 nHead = R2
-        
+
         pHead = list(pRefDiGraph.successors('PHEAD'))[0]
         pRefDiGraph.remove_node('PHEAD')
         nHead = list(nRefDiGraph.successors('NHEAD'))[0]
@@ -98,28 +97,28 @@ class PeakScanner(BioTasker):
         taskDatar.nHead = nHead
         delattr(chromDatar, 'lociDiGraph') 
         delattr(chromDatar, 'sortedPoints')
-        return taskDatar        
-    
+        return taskDatar
+
     def configureSingleMode(self, chromDatar): #
         # wait for implementation in future
         taskDatar = TaskDatar()
         return taskDatar      
-    
-    def calcEntropy(self, group, refDiGraph):  
+
+    def calcEntropy(self, group, refDiGraph):
         degrees = [refDiGraph.nodes[n]['depth'] for n in group]
         degsum = sum(degrees)
         problist = [1.0*val/degsum for val in degrees ]
         entropy = sum([-prob*numpy.log2(prob) for prob in problist])
         return entropy
-        
+
     def peakScanningProc(self, taskDatar, chrid):
         pRefDiGraph = taskDatar.pRefDiGraph 
-        nRefDiGraph = taskDatar.nRefDiGraph        
+        nRefDiGraph = taskDatar.nRefDiGraph
         measure = lambda e: abs(e[1] - e[0])
-        
+
         pComponents = self.breakingIntoComponents(pRefDiGraph, taskDatar.pHead, measure, k=3.0)
         nComponents = self.breakingIntoComponents(nRefDiGraph, taskDatar.nHead, measure, k=3.0)
-        
+
         #here we filtering those small components 
         degreepf = lambda group: sum([pRefDiGraph.nodes[n]['depth'] for n in group])
         pComponents = [item for item in pComponents if degreepf(item) >= self.R]
@@ -134,7 +133,7 @@ class PeakScanner(BioTasker):
         nMean, nStd = numpy.mean(nEntropyList), numpy.std(nEntropyList)
         nComponents = [ nComponents[i] for i in range(0, len(nComponents)) if nEntropyList[i]>nMean-2.0*nStd ]
         '''
-        
+
         pPeakList, pCompSerials = [], []
         compid = 0
         for component in pComponents:
@@ -150,15 +149,15 @@ class PeakScanner(BioTasker):
             nCompSerials.extend([compid for i in range(0, len(nPeaks))])
             compid += 1
         #print("raw pPeakList: %d" % len(pPeakList))
-        #print("raw nPeakList: %d" % len(nPeakList))   
-                  
+        #print("raw nPeakList: %d" % len(nPeakList))
+
         #compSerials for remember which component these peaks come from
         #and this information would be used in peakMerging, only those
-        #peaks from the same component would take part in the merging activity   
-        pmergedPeakDict = self.peakMerging(pPeakList, pCompSerials, pRefDiGraph)        
+        #peaks from the same component would take part in the merging activity
+        pmergedPeakDict = self.peakMerging(pPeakList, pCompSerials, pRefDiGraph)
         nmergedPeakDict = self.peakMerging(nPeakList, nCompSerials, nRefDiGraph)
         return pmergedPeakDict, nmergedPeakDict
-        
+
     def processComponent(self, component, refDiGraph):
         #the members in the component already sorted
         #cL, cN = self.getRScanLocalContext(component, refDiGraph)
@@ -169,11 +168,11 @@ class PeakScanner(BioTasker):
         smartWorm.configure()
         smartWorm.run()
         return smartWorm.peaks
-        
+
     def breakingIntoComponents(self, refDiGraph, head, measure, k=3.0):
         edgeValList = []
         current = head
-        while(True):
+        while (True):
             succ = list(refDiGraph.successors(current))
             if (succ):
                 value = measure((current, succ[0]))
@@ -183,17 +182,17 @@ class PeakScanner(BioTasker):
                 break  
         obslist, enumber = edgeValList, len(edgeValList)                
         edgeFlagList = [1 for i in range(0, enumber)]
-        while(True):   
+        while (True):   
             valarray = numpy.array(obslist)
             mu, sigma = numpy.mean(valarray), numpy.std(valarray)
             edgeFlagList = [ 0 if val-mu>k*sigma else 1 for val in edgeValList ] 
-            obslist = [ val for i,val in enumerate(edgeValList) if edgeFlagList[i] ]
+            obslist = [val for i, val in enumerate(edgeValList) if edgeFlagList[i]]
             onumber = len(obslist)
-            if(onumber < enumber):
+            if (onumber < enumber):
                 enumber = onumber
             else:
                 break
-      
+
         components = [[head]]  
         current, cursor = head, 0
         while (True):
@@ -208,12 +207,12 @@ class PeakScanner(BioTasker):
             else:
                 break              
         return components      
-    
-    #def getRScanLocalContext(self, component, refDiGraph, extend=10000):     
-    def getRScanLocalContext(self, start, end, refDiGraph, extend=10000):  
-        #local background is based on the whole component rather than 
+
+    #def getRScanLocalContext(self, component, refDiGraph, extend=10000):
+    def getRScanLocalContext(self, start, end, refDiGraph, extend=10000):
+        #local background is based on the whole component rather than
         #each individual peak candidate. It means every peak residents
-        #in this component would have the same background control.        
+        #in this component would have the same background control.
         #start, end = component[0], component[-1]
         middle = int(0.5 * (start + end))
         span = int(0.5 * extend)
