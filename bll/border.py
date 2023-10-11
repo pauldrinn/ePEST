@@ -443,7 +443,7 @@ class BorderScanner(BioTasker):
         borderPairDiGraph = taskDatar.borderPairDiGraph
         out = open(self.outDir + '/borderGraphs_on_' + chrid + '.json', 'w')
         out_data = json_graph.node_link_data(borderPairDiGraph)
-        json.dumps(out_data, out)
+        json.dump(out_data, out)
         out.close()
         '''
         testG = readwrite.json_graph.load(open('D:\\test.json')) ##

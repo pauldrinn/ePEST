@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Module Description
 
 Copyright (c) 2010,2011 Zhenqing Ye <iamyezhenqing@gmail.com>
