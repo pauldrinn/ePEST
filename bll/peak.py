@@ -36,8 +36,8 @@ class PeakScanner(BioTasker):
         self.pvalue = self.pargs.pvalue
 
         # preparing the output fold
-        if(not os.path.exists(self.pargs.output + '/Peak')):
-            tmp = os.mkdir(self.pargs.output + '/Peak') 
+        if (not os.path.exists(self.pargs.output + '/Peak')):
+            tmp = os.mkdir(self.pargs.output + '/Peak')
         self.outDir = self.pargs.output + '/Peak'
 
     def configureTask(self, chromNode):
@@ -50,6 +50,7 @@ class PeakScanner(BioTasker):
             taskDatar = self.configureSingleMode(chromDatar)
         '''
         return taskDatar
+
 
     def configurePairMode(self, chromDatar):
         taskDatar = TaskDatar()
@@ -95,14 +96,14 @@ class PeakScanner(BioTasker):
         taskDatar.pHead = pHead
         taskDatar.nRefDiGraph = nRefDiGraph
         taskDatar.nHead = nHead
-        delattr(chromDatar, 'lociDiGraph') 
+        delattr(chromDatar, 'lociDiGraph')
         delattr(chromDatar, 'sortedPoints')
         return taskDatar
 
-    def configureSingleMode(self, chromDatar): #
+    def configureSingleMode(self, chromDatar):
         # wait for implementation in future
         taskDatar = TaskDatar()
-        return taskDatar      
+        return taskDatar
 
     def calcEntropy(self, group, refDiGraph):
         degrees = [refDiGraph.nodes[n]['depth'] for n in group]
@@ -119,7 +120,7 @@ class PeakScanner(BioTasker):
         pComponents = self.breakingIntoComponents(pRefDiGraph, taskDatar.pHead, measure, k=3.0)
         nComponents = self.breakingIntoComponents(nRefDiGraph, taskDatar.nHead, measure, k=3.0)
 
-        #here we filtering those small components 
+        #here we filtering those small components
         degreepf = lambda group: sum([pRefDiGraph.nodes[n]['depth'] for n in group])
         pComponents = [item for item in pComponents if degreepf(item) >= self.R]
         degreenf = lambda group: sum([nRefDiGraph.nodes[n]['depth'] for n in group])
@@ -137,7 +138,7 @@ class PeakScanner(BioTasker):
         pPeakList, pCompSerials = [], []
         compid = 0
         for component in pComponents:
-            pPeaks = self.processComponent(component, pRefDiGraph)   
+            pPeaks = self.processComponent(component, pRefDiGraph)
             pPeakList.extend(pPeaks)
             pCompSerials.extend([compid for i in range(0, len(pPeaks))])
             compid += 1
@@ -164,7 +165,7 @@ class PeakScanner(BioTasker):
         cL, cN = self.getRScanLocalContext(component[0], component[-1], refDiGraph)
         s, S = self.pargs.minstep, self.pargs.maxstep
         R, pvalue = self.pargs.rscan, self.pargs.pvalue
-        smartWorm = InchWorm(refDiGraph, component, cL, cN, R, s, S, pvalue)  
+        smartWorm = InchWorm(refDiGraph, component, cL, cN, R, s, S, pvalue)
         smartWorm.configure()
         smartWorm.run()
         return smartWorm.peaks
@@ -180,12 +181,12 @@ class PeakScanner(BioTasker):
                 current = succ[0]
             else:
                 break  
-        obslist, enumber = edgeValList, len(edgeValList)                
+        obslist, enumber = edgeValList, len(edgeValList)
         edgeFlagList = [1 for i in range(0, enumber)]
-        while (True):   
+        while (True):
             valarray = numpy.array(obslist)
             mu, sigma = numpy.mean(valarray), numpy.std(valarray)
-            edgeFlagList = [ 0 if val-mu>k*sigma else 1 for val in edgeValList ] 
+            edgeFlagList = [0 if val-mu > k*sigma else 1 for val in edgeValList]
             obslist = [val for i, val in enumerate(edgeValList) if edgeFlagList[i]]
             onumber = len(obslist)
             if (onumber < enumber):
@@ -193,20 +194,20 @@ class PeakScanner(BioTasker):
             else:
                 break
 
-        components = [[head]]  
+        components = [[head]]
         current, cursor = head, 0
         while (True):
             succ = list(refDiGraph.successors(current))
             if (succ):
-                if(edgeFlagList[cursor]):
+                if (edgeFlagList[cursor]):
                     components[-1].append(succ[0])
                 else:
-                    components.append([succ[0]])                
+                    components.append([succ[0]])
                 current = succ[0]
                 cursor += 1
             else:
-                break              
-        return components      
+                break
+        return components
 
     #def getRScanLocalContext(self, component, refDiGraph, extend=10000):
     def getRScanLocalContext(self, start, end, refDiGraph, extend=10000):
@@ -217,10 +218,10 @@ class PeakScanner(BioTasker):
         middle = int(0.5 * (start + end))
         span = int(0.5 * extend)
         L = end - start + 1
-        #N = sum( [ refDiGraph.nodes[node]['depth'] for node in component] )
+        #N = sum([refDiGraph.nodes[node]['depth'] for node in component])
         poslist, vallist = self.nodeDepthFlowing(start, end, refDiGraph)
         N = sum(vallist)
-        while (middle-start < span):  
+        while (middle-start < span):
         #if the whole component is smaller than required extension 10kb
             head = list(refDiGraph.predecessors(start))
             if (head):
@@ -244,8 +245,8 @@ class PeakScanner(BioTasker):
             else:
                 break
         return L, N
-    
-    def outlierEdgeCutting(self, paramGraph, measure, k=3.0): 
+
+    def outlierEdgeCutting(self, paramGraph, measure, k=3.0):
         paramEdges = list(paramGraph.edges())
         edgeValList = [measure(edge) for edge in paramEdges]
         edgeFlagList = [1 for _ in range(0, len(edgeValList))]
@@ -253,7 +254,7 @@ class PeakScanner(BioTasker):
         while (True):
             valarray = numpy.array(obslist)
             mu, sigma = numpy.mean(valarray), numpy.std(valarray)
-            edgeFlagList = [ 0 if val-mu > k*sigma else 1 for val in edgeValList] 
+            edgeFlagList = [0 if val-mu > k*sigma else 1 for val in edgeValList]
             obslist = [val for i, val in enumerate(edgeValList) if edgeFlagList[i]]
             onumber = len(obslist)
             if (onumber < enumber):
@@ -263,7 +264,7 @@ class PeakScanner(BioTasker):
         eraseEdges = [paramEdges[i] for i,flag in enumerate(edgeFlagList) if not flag]
         paramGraph.remove_edges_from(eraseEdges)
         return paramGraph
-        
+
     def peakMerging(self, peakList, compSerials, refDiGraph):
         # peakList is already sorted, and each peak would have the content
         # looks like : Peak = namedtuple('Peak', 'start, end, w, r, score, pvalue')
@@ -278,13 +279,13 @@ class PeakScanner(BioTasker):
             if(prevCompId==nextCompId): #peak from the same component
                 peakMgGraph.add_edge(i, i+1, dist=dist)
             else:
-                peakMgGraph.add_nodes_from([i, i+1])            
+                peakMgGraph.add_nodes_from([i, i+1])
         measure = lambda e: peakMgGraph.get_edge_data(*e)['dist']
         #1 - norm.cdf(3.5) = 0.00023
         #here we tend to keep those peaks in the same component to be linked
         #so pick the k with a little bit higher 
         peakMgGraph = self.outlierEdgeCutting(peakMgGraph, measure, k=3.0)
-        
+
         components = networkx.connected_components(peakMgGraph)
         MergedPeak = collections.namedtuple('MergedPeak', 'chromStart, chromEnd, name, score, blockCount, blockSizes, blockStarts, uPoint, pValue')
         mergedPeakDict = collections.defaultdict(None)
@@ -293,21 +294,21 @@ class PeakScanner(BioTasker):
             chromStart = peakList[comp[0]].start
             chromEnd = peakList[comp[-1]].end #included
             posList, depthList = self.nodeDepthFlowing(chromStart, chromEnd, refDiGraph)
-            valList = [1.0*pos*val for pos,val in zip(posList, depthList)] 
+            valList = [1.0*pos*val for pos,val in zip(posList, depthList)]
             uPoint = int(sum(valList)/sum(depthList)) # the "average" point based on density distribution
             blockCount = len(comp)
             blockSizes = [peakList[index].end - peakList[index].start + 1 for index in comp]
             blockStarts = [ peakList[index].start-chromStart for index in comp ]
             name = str(chromStart) #+ '-' + str(chromEnd) 
             #name = str(uPoint)
-            cL, cN = self.getRScanLocalContext(chromStart, chromEnd, refDiGraph)  
+            cL, cN = self.getRScanLocalContext(chromStart, chromEnd, refDiGraph)
             w, r = chromEnd - chromStart + 1, sum(valList) + 1
-            score, pValue = self.calculateScanScore(r, w, cL, cN)         
+            score, pValue = self.calculateScanScore(r, w, cL, cN)
             mgPeak = MergedPeak(chromStart, chromEnd, name, score, blockCount, blockSizes, blockStarts, uPoint, pValue)
-            mergedPeakDict[chromStart] = mgPeak      
-        return mergedPeakDict    
-        
-    
+            mergedPeakDict[chromStart] = mgPeak
+        return mergedPeakDict
+
+
     def nodeDepthFlowing(self, start, end, refDiGraph):
         # start always less than end
         '''
@@ -327,57 +328,58 @@ class PeakScanner(BioTasker):
             if (succs):
                 pos = succs[0]
             else:
-                break  # to the end          
-        return posList, valList            
-    
+                break  # to the end
+        return posList, valList
+
     def calculateScanScore(self, r, w, L, N):
-        logx    = numpy.log(w) - numpy.log(L) + (1.0 + 1.0/r) * numpy.log(N)
-        score  = r*logx - util.fastLogFactorial(r)
+        logx = numpy.log(w) - numpy.log(L) + (1.0 + 1.0/r) * numpy.log(N)
+        score = r*logx - util.fastLogFactorial(r)
         lda = numpy.exp(score)
         prob = 1.0 - numpy.exp(-lda)
         return score, prob
-    
-    def peakPairing(self, pmPeakDict, nmPeakDict ):
+
+    def peakPairing(self, pmPeakDict, nmPeakDict):
         #MergedPeak(chromStart, chromEnd, name, score, blockCount, blockSizes, blockStarts, uPoint, pValue)
         #Peaks on the "same" strand would never overlapped
         pairDiGraph = networkx.DiGraph()
         pPoints, nPoints = sorted(pmPeakDict.keys()), sorted(nmPeakDict.keys())
         pN, nN = len(pPoints), len(nPoints)
+        print(pN, nN)
         #cursor for positive and negative strands
-        pc, nc   = 0, 0 
+        pc, nc = 0, 0
         #find the nearest peak on the other strand
         for pPos in pPoints:
             pUPoint = pmPeakDict[pPos].uPoint
             nPos = nPoints[nc]
             nUPoint  = nmPeakDict[nPos].uPoint
-            while(nUPoint <= pUPoint and nc < nN-1):
+            while (nUPoint <= pUPoint and nc < nN-1):
                 nc += 1
                 nPos = nPoints[nc]
                 nUPoint = nmPeakDict[nPos].uPoint
             GAPSIZE = abs(pUPoint - nUPoint)
-            pairDiGraph.add_edge( 'P-' + str(pPos), 'N-' + str(nPos), dist=GAPSIZE )   
-        #now treat the negative strand    
+            pairDiGraph.add_edge('P-' + str(pPos), 'N-' + str(nPos), dist=GAPSIZE)
+        #now treat the negative strand
         for nPos in nPoints:
             nUPoint = nmPeakDict[nPos].uPoint
             pPos = pPoints[pc]
             pUPoint  = pmPeakDict[pPos].uPoint
-            if(pUPoint >= nUPoint): #ignoring the first items
+            if (pUPoint >= nUPoint): #ignoring the first items
                 continue
-            while(pUPoint < nUPoint and pc < pN-1):
+            while (pUPoint < nUPoint and pc < pN-1):
                 pc += 1
                 pPos = pPoints[pc]
                 pUPoint = pmPeakDict[pPos].uPoint
             #back one step
             pc -= 1
             pPos = pPoints[pc]
-            pUPoint = pmPeakDict[pPos].uPoint           
+            pUPoint = pmPeakDict[pPos].uPoint
             GAPSIZE = abs(nUPoint - pUPoint)
-            pairDiGraph.add_edge('N-' + str(nPos), 'P-' + str(pPos), dist=GAPSIZE )
-        #removing those outlier edges by inspection of their distances 
-        ef = lambda e: pairDiGraph.get_edge_data(*e)['dist']        
-        pairDiGraph = self.outlierEdgeCutting(pairDiGraph, ef, k=3.5 )         
+            pairDiGraph.add_edge('N-' + str(nPos), 'P-' + str(pPos), dist=GAPSIZE)
+        #removing those outlier edges by inspection of their distances
+        ef = lambda e: pairDiGraph.get_edge_data(*e)['dist']
+        pairDiGraph = self.outlierEdgeCutting(pairDiGraph, ef, k=3.5)
         return pairDiGraph
-        
+
     def goodPeakPairs(self, peakPairDiGraph):
         PNPairList = set()
         for edge in peakPairDiGraph.edges():
@@ -386,15 +388,15 @@ class PeakScanner(BioTasker):
               and target in list(peakPairDiGraph.successors(source))):
                 pair = (source, target) if source.startswith('P-') else (target, source)
                 PNPairList.add(pair)
-        return list(PNPairList)     
-        
+        return list(PNPairList)
+
     def runTask(self, chromNode):
         chrid = chromNode.identifier
         chrid = chrid[0:3] + chrid[3:].upper()
         #self.log.info("%s: Starting PeakCalling-task on %s..." % (time.ctime(), chrid))
         self.log.info("Starting PeakCalling-task on %s..." % (chrid))
         taskDatar = self.configureTask(chromNode)
-        pmergedPeakDict, nmergedPeakDict = self.peakScanningProc(taskDatar, chrid)  
+        pmergedPeakDict, nmergedPeakDict = self.peakScanningProc(taskDatar, chrid)
         '''
         outfile = self.outDir + '/peakcall_on_' + chrid + '.bed'
         handle = open(outfile, 'w')
@@ -402,7 +404,7 @@ class PeakScanner(BioTasker):
             mpPeak = pmergedPeakDict[pid]
             linestr = self.buildOneLineStr(chrid, '+', mpPeak, 'pp')
             handle.write(linestr)
-        
+
         for pid in nmergedPeakDict:
             mnPeak = nmergedPeakDict[pid]
             linestr = self.buildOneLineStr(chrid, '-', mnPeak, 'np')
@@ -411,11 +413,11 @@ class PeakScanner(BioTasker):
         '''
         pairDiGraph = self.peakPairing(pmergedPeakDict, nmergedPeakDict)
         pairs = self.goodPeakPairs(pairDiGraph)
-        
+
         unpairNodes = set(pairDiGraph.nodes())
         pNodes = set([pair[0] for pair in pairs])
         nNodes = set([pair[1] for pair in pairs])
-        
+
         unpairNodes = unpairNodes.difference(pNodes)
         unpairNodes = unpairNodes.difference(nNodes)
         #print('Paired Peaks number: %d' % len(pairs))
@@ -450,7 +452,7 @@ class PeakScanner(BioTasker):
                 linestr = self.buildOneLineStr(chrid, '-', unPeak, 'un')
                 handle.write(linestr)
         '''        
-        handle.close()     
+        handle.close()
         #---------------------------------------
         chromDatar = chromNode.data
         chromDatar.pRefDiGraph = taskDatar.pRefDiGraph
@@ -461,35 +463,35 @@ class PeakScanner(BioTasker):
         chromDatar.nHead = taskDatar.nHead
         chromDatar.nmergedPeakDict = nmergedPeakDict
         chromDatar.peakPairs = pairs
-        
+
         #self.log.info("%s: PeakCalling-task is finished on %s..." % (time.ctime(), chrid) ) 
-        self.log.info("PeakCalling-task is finished on %s..." % (chrid) )
+        self.log.info("PeakCalling-task is finished on %s..." % (chrid))
 
     def buildOneLineStr(self, chrid, strand, peak, flag):
         #peak.chromEnd+1 because it's closed end here, for bed format, it's opened end.
         linestr = chrid + '\t' + str(peak.chromStart) + '\t' + str(peak.chromEnd+1) + '\t'
-        if(strand == '+'):
+        if (strand == '+'):
             name = 'PP-' + peak.name
         else:
             name = 'PN-' + peak.name
-        score = 0    
-        linestr+= name + '\t' + str(score) + '\t' + strand + '\t'
+        score = 0
+        linestr += name + '\t' + str(score) + '\t' + strand + '\t'
         thickStart, thickEnd = str(peak.chromStart), str(peak.chromEnd+1)
-        linestr+= thickStart + '\t' + thickEnd + '\t'
+        linestr += thickStart + '\t' + thickEnd + '\t'
         #flag: pp means positive strand and paired
         #      np means negative strand and paired
         #      pu means positive strand and unpaired
         #      nu means negative strand and unpaired
-        if(flag == 'pp'):
+        if (flag == 'pp'):
             itemRgb = "255,0,0"
-        elif(flag == 'np'):
+        elif (flag == 'np'):
             itemRgb = "0,0,255"
         else:
             itemRgb = "0,255,0"
-        linestr+= itemRgb + '\t'
-        linestr+= str(peak.blockCount) + '\t'
+        linestr += itemRgb + '\t'
+        linestr += str(peak.blockCount) + '\t'
         blockSizes = ','.join(map(str, peak.blockSizes))
-        linestr+= blockSizes + '\t'
+        linestr += blockSizes + '\t'
         blockStarts = ','.join(map(str, peak.blockStarts))
-        linestr+= blockStarts + '\n'
-        return linestr        
+        linestr += blockStarts + '\n'
+        return linestr
