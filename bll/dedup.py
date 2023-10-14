@@ -33,14 +33,14 @@ class DeduplicateWorker(BioTasker):
             self.REGEX = "[a-zA-Z0-9]+:[0-9]:([0-9]+):([0-9]+):([0-9]+).*"
         else:
             self.REGEX = self.pargs.regex
-        
-        self.optDistance = self.pargs.dist       
+
+        self.optDistance = self.pargs.dist
         self.qvalue = self.pargs.qvalue
         
         output = self.pargs.output + '/Dedup'
         if (not os.path.exists(self.pargs.output + '/Dedup')):
-            tmp = os.mkdir(output)   
-    
+            tmp = os.makedirs(output, exist_ok=True)   
+
     def configureTask(self, chromNode):
         taskDatar = TaskDatar()    
         chromDatar = chromNode.data
@@ -59,9 +59,9 @@ class DeduplicateWorker(BioTasker):
 
         taskDatar._soft_sortedPoints = nodes            
         taskDatar._soft_lociDiGraph = lociDiGraph
-        
+
         delattr(chromDatar, 'map') # we do not need it more, to save space
-        
+
         #---------------------------------------------------
         # calculate the EXTENTION for amplification section
         #---------------------------------------------------

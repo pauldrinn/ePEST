@@ -37,7 +37,7 @@ class PeakScanner(BioTasker):
 
         # preparing the output fold
         if (not os.path.exists(self.pargs.output + '/Peak')):
-            tmp = os.mkdir(self.pargs.output + '/Peak')
+            tmp = os.makedirs(self.pargs.output + '/Peak', exist_ok=True)
         self.outDir = self.pargs.output + '/Peak'
 
     def configureTask(self, chromNode):

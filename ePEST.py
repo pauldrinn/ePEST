@@ -16,17 +16,54 @@ the distribution).
 import time
 import signal
 
-from cement import App, init_defaults, Controller, ex
-from cement.core import exc
+from cement import App, init_defaults, Controller, ex, CaughtSignal
 
 from bll.exo import ExoBlocker
 import multiprocessing
 import bll.workbee as workbee
 
+from context.env import env_checking
+from context.opt import opt_validating
+
 defaults = init_defaults("exoApp", "log")
 defaults['exoApp']['debug'] = False
 timelabel = time.strftime("%Y-%m-%d_%H:%M:%S", time.gmtime())
 defaults['log']['file'] = 'ePEST_' + timelabel + '.log' ##
+
+def my_pre_setup_hook(app):
+    #=========================================================================
+	#  In this stage, we would like to check the environment.
+    #  note: app.log is still not available at this time.
+	#=========================================================================
+    env_checking(app)
+
+def my_post_setup_hook(app):
+    #=========================================================================
+	#  In this stage, we would like to decorate the application logger.
+    #  note: the app.Logger is available, but app.pargs is not available
+	#=========================================================================
+    pass
+    
+def my_pre_run_hook(app): 
+    #=========================================================================
+	#  In this stage, app.pargs is still not available due to app.argv has 
+    #  not been parsed.
+	#========================================================================= 
+    pass
+  
+def my_post_run_hook(app):
+    #=========================================================================
+	#  In this stage, all cement-framework related configuration has finished,
+    #  and the app.pargs also available now. We can do options-validation in 
+    #  regarding to our business logics.
+	#=========================================================================
+    opt_validating(app)
+
+def my_pre_close_hook(app):
+    pass
+
+def my_post_close_hook(app):
+    pass
 
 class ExoAppBaseController(Controller):
     class Meta:
@@ -89,11 +126,19 @@ class ExoApp(App):
         handlers = [
             ExoAppBaseController
         ]
+        hooks = [
+            ('pre_setup', my_pre_setup_hook),
+            ('post_setup', my_post_setup_hook),
+            ('pre_run', my_pre_run_hook),
+            ('post_run', my_post_run_hook),
+            ('pre_close', my_pre_close_hook),
+            ('post_close', my_post_close_hook)
+        ]
 
 with ExoApp() as app:
     try:
         app.run()
-    except exc.CaughtSignal as e:
+    except CaughtSignal as e:
         if e.signum == signal.SIGTERM:
             print("Caught signal SIGTERM...")
         elif e.signum == signal.SIGINT:

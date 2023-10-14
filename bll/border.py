@@ -39,7 +39,7 @@ class BorderScanner(BioTasker):
 
         # preparing the output fold
         if (not os.path.exists(self.pargs.output + '/Border')):
-            tmp = os.mkdir(self.pargs.output + '/Border')
+            tmp = os.makedirs(self.pargs.output + '/Border', exist_ok=True)
         self.outDir = self.pargs.output + '/Border'
 
     #========================================================

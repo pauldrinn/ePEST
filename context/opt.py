@@ -72,8 +72,8 @@ def opt_validating(app):
     try:
         if app.pargs.output:
             output = app.pargs.output
-            if(not os.path.exists(output)):
-                tmp = os.mkdir(output)
+            if (not os.path.exists(output)):
+                tmp = os.makedirs(output, exist_ok=True)
         else:
             output = os.getcwd()
     except:
