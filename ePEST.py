@@ -25,10 +25,10 @@ import bll.workbee as workbee
 from context.env import env_checking
 from context.opt import opt_validating
 
-defaults = init_defaults("exoApp", "log")
-defaults['exoApp']['debug'] = False
+defaults = init_defaults("ePEST", "log.logging")
+defaults['ePEST']['debug'] = False
 timelabel = time.strftime("%Y-%m-%d_%H:%M:%S", time.gmtime())
-defaults['log']['file'] = 'ePEST_' + timelabel + '.log' ##
+defaults['log.logging']['file'] = 'logs/ePEST_' + timelabel + '.log' ##
 
 def my_pre_setup_hook(app):
     #=========================================================================
@@ -99,7 +99,7 @@ class ExoAppBaseController(Controller):
         t = self.app.pargs.threads
         pargs = self.app.pargs
         plog = self.app.log
-        consumers = [multiprocessing.Process(target=workbee.processWorkBee, args=(chromNodes, results, pargs, plog)) for i in range(t)]
+        consumers = [multiprocessing.Process(target=workbee.processWorkBee, args=(chromNodes, results, pargs, plog)) for _ in range(t)]
         for w in consumers:
             w.start()
 
@@ -143,5 +143,3 @@ with ExoApp() as app:
             print("Caught signal SIGTERM...")
         elif e.signum == signal.SIGINT:
             print("Caught signal SIGINT...")
-    finally:
-        app.close()

@@ -25,8 +25,8 @@ from bll.core import TaskDatar
 
 class DeduplicateWorker(BioTasker):
 
-    def __init__(self, pargs, plog ):
-        self.pargs   = pargs
+    def __init__(self, pargs, plog):
+        self.pargs = pargs
         self.log = plog
 
         if (self.pargs.regex==None):
@@ -39,7 +39,7 @@ class DeduplicateWorker(BioTasker):
         
         output = self.pargs.output + '/Dedup'
         if (not os.path.exists(self.pargs.output + '/Dedup')):
-            tmp = os.makedirs(output, exist_ok=True)   
+            tmp = os.makedirs(output, exist_ok=True)
 
     def configureTask(self, chromNode):
         taskDatar = TaskDatar()    

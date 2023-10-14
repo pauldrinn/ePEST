@@ -344,7 +344,6 @@ class PeakScanner(BioTasker):
         pairDiGraph = networkx.DiGraph()
         pPoints, nPoints = sorted(pmPeakDict.keys()), sorted(nmPeakDict.keys())
         pN, nN = len(pPoints), len(nPoints)
-        print(pN, nN)
         #cursor for positive and negative strands
         pc, nc = 0, 0
         #find the nearest peak on the other strand
